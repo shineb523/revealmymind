@@ -1,32 +1,237 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title></title>
     <style>
+        body {
+            margin-bottom: 50px;
+        }
 
+        #write_button {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table,
+        td {
+            border: 1px solid black;
+        }
+
+        #popup_outermost {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+        }
+
+        #write_dim_bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            opacity: .5;
+            filter: alpha(opacity=50);
+        }
+
+        #write_popup {
+            position: fixed;
+            width: 500px;
+            height: 400px;
+            background-color: #fff;
+        }
+
+        #write_popup,
+        #thinking_write_form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #thinking_write_form {
+            height: 100%;
+        }
+
+        #think_textarea {
+            flex-grow: 9;
+        }
+
+        #write_submit_button {
+            flex-grow: 1;
+        }
     </style>
-  </head>
-  <body>
+</head>
 
-    <!-- index.ejs page -->
-    <p>index.ejs page</p>
+<body>
+    <div id="popup_outermost">
+        <div id="write_dim_bg"></div>
+        <div id="write_popup">
+            <form id="thinking_write_form" action="/write_article_post" method="post">
+                <textarea id="think_textarea" name="think"></textarea>
+                <input id="write_submit_button" type="submit" value="write">
+            </form>
+        </div>
+    </div>
+
+    <div id="article_list" class="card-columns">
+        <div class="card">
+            <div class="card-body">
+                <p class="card-text"></p>
+            </div>
+        </div>
+
+    </div>
+
+    <button id="write_button">Write</button>
+
+
+
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <script src="../public/jquery.jsonrpc.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script>
         (jQuery)(function($) {
 
+            $.jsonRPC.setup({
+                endPoint: 'http://localhost:3000/api',
+                namespace: ''
+            });
+
+            var article_list;
+
+            $.jsonRPC.request('article_database_check', {
+                id: 001,
+                params: [],
+                success: function(data) {
+                    console.log('Received success response of jsonRPC.');
+                    var article_list = data.result;
+                    var shuffled_article_list = shuffle(article_list);
+                    console.log('shuffled_article_list : ', shuffled_article_list);
+                    console.log('article_list : ', article_list);
+                    var article_list_string = '';
+
+
+
+                    $.each(article_list, function(index, value) {
+                        article_list_string += '<div class=\"card\"><div class=\"card-body\"><p class=\"card-text\">';
+                        article_list_string += value.text;
+                        article_list_string += '</p></div></div>';
+                    });
+                    $('#article_list').append(article_list_string);
+
+                },
+                error: function(data) {
+                    console.log('Received error response of jsonRPC.');
+                    console.log(data.error.code + ', ' + data.error.message);
+                    window.location.href = '../views/error';
+                }
+            });
+
+            function shuffle(array) {
+                var currentIndex = array.length,
+                    temporaryValue, randomIndex;
+
+                // While there remain elements to shuffle...
+                while (0 !== currentIndex) {
+
+                    // Pick a remaining element...
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex -= 1;
+
+                    // And swap it with the current element.
+                    temporaryValue = array[currentIndex];
+                    array[currentIndex] = array[randomIndex];
+                    array[randomIndex] = temporaryValue;
+                }
+
+                return array;
+            }
+
+            var popupHeight = $(window).height() * 0.5;
+            var popupWidth = $(window).width() * 0.5;
+            var popupExtraHeight = ($(window).height() - popupHeight) / 2;
+            var popupExtraWidth = ($(window).width() - popupWidth) / 2;
+
+
+            $('#write_popup').css({
+                'top': popupExtraHeight,
+                'left': popupExtraWidth,
+                'height': popupHeight,
+                'width': popupWidth
+            });
+
+
+            $(window).resize(function() {
+                var popupHeight = $(window).height() * 0.5;
+                var popupWidth = $(window).width() * 0.5;
+                var popupExtraHeight = ($(window).height() - popupHeight) / 2;
+                var popupExtraWidth = ($(window).width() - popupWidth) / 2;
+
+                $('#write_popup').css({
+                    'top': popupExtraHeight,
+                    'left': popupExtraWidth,
+                    'height': popupHeight,
+                    'width': popupWidth
+                });
+
+            })
+
+
+            $(document).on('click', function(e) {
+                if (e.target.getAttribute('id') == 'write_dim_bg') {
+                    $('#popup_outermost').fadeOut();
+                }
+            });
+
+            $('#write_button').on('click', function() {
+                $('#popup_outermost').fadeIn();
+            });
+
+            $('#close_write_popup_button').on('click', function() {
+                $('#popup_outermost').fadeOut();
+            });
+
+
+            $('#thinking_write_form').submit(function() {
+                if ($('#think_textarea').val().length == 0) {
+                    alert("Please enter more than 1 character.");
+                    $('#think_textarea').focus();
+                    return false;
+                }
+
+                if ($('#think_textarea').val().length >= 1000) {
+                    alert("Please enter less than 1000 characters.");
+                    $('#think_textarea').focus();
+                    return false;
+                }
+            });
+
+
+
+
         });
     </script>
-  </body>
+</body>
+
 </html>

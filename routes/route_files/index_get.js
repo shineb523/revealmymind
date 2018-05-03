@@ -1,7 +1,8 @@
-// index.ejs page.
+// index.ejs page.(form get).
 module.exports = function(req, res) {
 
-    console.log('/index path is required.');
-    res.render('index.ejs');
-    return;
-}
+console.log('/ path is required.');
+
+res.render('index.ejs');
+return;
+};

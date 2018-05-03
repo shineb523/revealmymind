@@ -5,7 +5,7 @@ var Schema = {};
 Schema.createSchema = function(mongoose) {
 
     // Define schema.
-    var mind_schema = mongoose.Schema({
+    var think_schema = mongoose.Schema({
         text: {
             type: String,
             required: true
@@ -17,11 +17,11 @@ Schema.createSchema = function(mongoose) {
         }
     });
 
-    console.log('user_account_schema 정의함.');
+    console.log('Defined think_schema.');
 
-    return mind_schema;
+    return think_schema;
 };
 
-// Directly assign mind_schema object to module.exports.
+// Directly assign think_schema object to module.exports.
 
 module.exports = Schema;

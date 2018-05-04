@@ -71,6 +71,7 @@
 
         #think_textarea {
             flex-grow: 9;
+            border-color: rgba(28, 32, 31, 0.68);
         }
 
         #write_submit_button {
@@ -82,24 +83,19 @@
 <body>
     <div id="popup_outermost">
         <div id="write_dim_bg"></div>
-        <div id="write_popup">
+        <div id="write_popup" class="rounded" class="border border-secondary">
             <form id="thinking_write_form" action="/write_article_post" method="post">
-                <textarea id="think_textarea" name="think"></textarea>
-                <input id="write_submit_button" type="submit" value="write">
+                <textarea id="think_textarea" class="form-control" name="think"></textarea>
+                <input id="write_submit_button" class="btn btn-outline-secondary" type="submit" value="write">
             </form>
         </div>
     </div>
 
     <div id="article_list" class="card-columns">
-        <div class="card">
-            <div class="card-body">
-                <p class="card-text"></p>
-            </div>
-        </div>
 
     </div>
 
-    <button id="write_button">Write</button>
+    <button id="write_button" class="btn btn-outline-secondary" >Write</button>
 
 
 
@@ -126,9 +122,9 @@
                 success: function(data) {
                     console.log('Received success response of jsonRPC.');
                     var article_list = data.result;
-                    var shuffled_article_list = shuffle(article_list);
-                    console.log('shuffled_article_list : ', shuffled_article_list);
+                    shuffle(article_list);
                     console.log('article_list : ', article_list);
+
                     var article_list_string = '';
 
 
@@ -164,7 +160,6 @@
                     array[currentIndex] = array[randomIndex];
                     array[randomIndex] = temporaryValue;
                 }
-
                 return array;
             }
 
